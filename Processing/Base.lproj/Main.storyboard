@@ -716,27 +716,39 @@
                                 </constraints>
                             </customView>
                             <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mKR-Ex-yTr">
-                                <rect key="frame" x="18" y="75" width="96" height="19"/>
+                                <rect key="frame" x="18" y="56" width="96" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="xh1-Kb-8U5"/>
+                                <sliderCell key="cell" state="on" alignment="left" maxValue="4" doubleValue="1" tickMarkPosition="above" sliderType="linear" id="xh1-Kb-8U5"/>
+                                <connections>
+                                    <action selector="speedChanged:" target="XfG-lQ-9wD" id="dkY-BX-maJ"/>
+                                </connections>
                             </slider>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="thw-JU-VFJ">
-                                <rect key="frame" x="48" y="52" width="43" height="17"/>
+                                <rect key="frame" x="45" y="33" width="44" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Speed" id="z5j-Hi-BrK">
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" metaFont="systemMedium" size="13"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ny1-92-KyN">
-                                <rect key="frame" x="270" y="29" width="81" height="32"/>
+                            <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dtx-Xk-c7a">
+                                <rect key="frame" x="155" y="56" width="96" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RT0-Wi-IXk">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                            </button>
+                                <sliderCell key="cell" state="on" alignment="left" minValue="1" maxValue="20" doubleValue="1" tickMarkPosition="below" sliderType="linear" id="fDD-aN-2b6"/>
+                                <connections>
+                                    <action selector="seriesChanged:" target="XfG-lQ-9wD" id="a6g-Z3-5PT"/>
+                                </connections>
+                            </slider>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6G8-uK-GSR">
+                                <rect key="frame" x="182" y="33" width="43" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Series" id="qQw-KW-Crv">
+                                    <font key="font" metaFont="systemMedium" size="13"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                         <constraints>
                             <constraint firstItem="3GE-9Q-Asb" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="ARo-Dd-Yag"/>
@@ -745,7 +757,7 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="canvasView" destination="3GE-9Q-Asb" id="O9X-Nv-8X9"/>
+                        <outlet property="sketch" destination="3GE-9Q-Asb" id="O9X-Nv-8X9"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

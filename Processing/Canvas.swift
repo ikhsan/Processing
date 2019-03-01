@@ -51,6 +51,10 @@ class Canvas: NSView {
   
   // MARK: - Helpers
   
+  func translate(by offset: CGPoint) {
+    ctx.translateBy(x: offset.x, y: offset.y)
+  }
+  
   func fill(_ color: CGColor) {
     ctx.setFillColor(color)
   }

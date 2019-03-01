@@ -6,20 +6,24 @@ public func +(left: CGPoint, right: CGPoint) -> CGPoint {
 
 class SketchView: Canvas {
   
-  var angle = 0.0
-  let delta = Double.pi / 180
+  var speed = 1.0
+  var series = 1
   
-  let r = 50.0
-  let offset = CGPoint(x: 150, y: 150)
+  private var angle = 0.0
+  private let delta = Double.pi / 180
   
-  var graphPoints: [CGFloat] = []
+  private let r = 50.0
+  
+  private var graphPoints: [CGFloat] = []
   
   override func draw() {
     background(CGColor(gray: 0.18, alpha: 1.0))
     
-    var pen = offset
+    translate(by: CGPoint(x: 150, y: 150))
     
-    for i in 0...10 {
+    var pen = CGPoint.zero
+    
+    for i in 0..<series {
       // series
       let n = Double(i * 2 + 1)
       let rad = r * (4 / (n * Double.pi))
@@ -47,7 +51,7 @@ class SketchView: Canvas {
     add(point: pen.y)
     let ps = graphPoints.enumerated().map {
       CGPoint(
-        x: CGFloat($0.offset) + offset.x + 150.0,
+        x: CGFloat($0.offset) + 150.0,
         y: $0.element
       )
     }
@@ -58,7 +62,7 @@ class SketchView: Canvas {
     }
     
     // move
-    angle += delta * 4
+    angle += delta * speed
   }
   
   func add(point: CGFloat) {
