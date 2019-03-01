@@ -1,9 +1,7 @@
 import Cocoa
 
 class Canvas: NSView {
-  private var timer: Timer? = nil
-  var frameRate = 60.0
-  
+ 
   override init(frame frameRect: NSRect) {
     super.init(frame: frameRect)
     setupView()
@@ -13,26 +11,27 @@ class Canvas: NSView {
     super.init(coder: decoder)
     setupView()
   }
+
+  var displayLink: CVDisplayLink?
   
   private func setupView() {
     setup()
     
-    let timeInterval = 1 / frameRate
-    
-    timer = Timer.scheduledTimer(
-      withTimeInterval: timeInterval,
-      repeats: true,
-      block: { [weak self] _ in
-        
-        DispatchQueue.main.async {
-            self?.needsDisplay = true
-        }
-        
-//        print(Thread.current)
-//        self?.needsDisplay = true
-        
+    // Source: https://github.com/alexito4/p5-in-Swift/blob/master/p5.playground/Sources/Sketch.swift
+    let callback: CVDisplayLinkOutputCallback = {
+      (displayLink, inNow, inOutputTime, flagsIn, flagsOut, context) -> CVReturn in
+      
+      DispatchQueue.main.sync {
+        let view = unsafeBitCast(context, to: Canvas.self)
+        view.setNeedsDisplay(view.bounds)
+        view.displayIfNeeded()
       }
-    )
+      return kCVReturnSuccess
+    }
+    
+    CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
+    CVDisplayLinkSetOutputCallback(displayLink!, callback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
+    CVDisplayLinkStart(displayLink!)
   }
   
   override var isFlipped: Bool {
@@ -103,11 +102,6 @@ class Canvas: NSView {
     fill(color)
     rect(bounds)
   }
-  
-  func noLoop() {
-    timer?.invalidate()
-  }
-  
   
   // MARK: - Methods to override
   
