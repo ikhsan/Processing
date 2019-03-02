@@ -8,46 +8,39 @@ class SketchView: Canvas {
   
   enum Wave: Int { case square, saw }
   
-  var speed = 1.0
-  var series = 1
-  var wave = Wave.square
+  var series = 3
   
   private var angle = 0.0
-  private let delta = Double.pi / 180
+  private lazy var delta = Double.pi * 2 / Double(fouriers.count)
   
-  private let r = 50.0
+  private var graphPoints: [CGPoint] = []
   
-  private var graphPoints: [CGFloat] = []
+  var fouriers: [Epicycle] = []
   
-  private func series(_ i: Int) -> (rad: Double, x: Double, y: Double) {
-    switch wave {
-    case .square:
-      let n = Double(i * 2 + 1)
-      let rad = r * (4 / (n * Double.pi))
-      let x = rad * cos(n * angle)
-      let y = rad * sin(n * angle)
-      
-      return (rad: rad, x: x, y: y)
-    case .saw:
-      let n = Double(i + 1)
-      let rad = r * (2 / (n * Double.pi))
-      let x = rad * cos(n * angle)
-      let y = rad * sin(n * angle)
-      
-      return (rad: rad, x: x, y: y)
-    }
+  override func setup() {
+    let sampleInterval = 5
+    let paths = loadPath(from: "sk")
+      .enumerated()
+      .filter { $0.offset % sampleInterval == 0 }
+      .map { Complex(($0.element.x - 200), $0.element.y - 200) * 1.5  }
+    
+    fouriers = dft(paths)
+      .sorted(by: { $0.radius > $1.radius })
   }
   
   override func draw() {
     background(CGColor(gray: 0.18, alpha: 1.0))
-    
-    translate(by: CGPoint(x: 150, y: 150))
+    translate(by: CGPoint(x: 300, y: 150))
     
     var pen = CGPoint.zero
     
-    for n in 0..<series {
-      // series
-      let (rad, x, y) = series(n)
+    for cycle in fouriers.prefix(upTo: series) {
+      let rad = cycle.radius * 0.3
+      let freq = cycle.frequency
+      let phase = cycle.phase
+      
+      let x = rad * cos(freq * angle + phase)
+      let y = rad * sin(freq * angle + phase)
       
       // circle
       fill(.clear)
@@ -66,30 +59,16 @@ class SketchView: Canvas {
       pen = lastPen
     }
     
-    // draw curve
-    add(point: pen.y)
-    let ps = graphPoints.enumerated().map {
-      CGPoint(
-        x: CGFloat($0.offset) + 150.0,
-        y: $0.element
-      )
-    }
-    drawPath(ps)
-    if let graphsFirstPoint = ps.first {
-      line(from: pen, to: graphsFirstPoint)
-      ellipse(graphsFirstPoint, radius: 2)
+    // draw waves
+    graphPoints.append(pen)
+    drawPath(graphPoints)
+    
+    if graphPoints.count >= fouriers.count {
+      graphPoints.removeAll()
     }
     
     // move
-    angle += delta * speed
-  }
-  
-  func add(point: CGFloat) {
-    graphPoints.insert(point, at: 0)
-    
-    if graphPoints.count > 300 {
-      graphPoints.removeLast()
-    }
+    angle += delta
   }
   
 }

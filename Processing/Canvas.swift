@@ -45,7 +45,6 @@ class Canvas: NSView {
   override func draw(_ dirtyRect: NSRect) {
     super.draw(dirtyRect)
     
-    setup()
     draw()
   }
   
