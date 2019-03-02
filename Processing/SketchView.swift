@@ -6,8 +6,11 @@ public func +(left: CGPoint, right: CGPoint) -> CGPoint {
 
 class SketchView: Canvas {
   
+  enum Wave: Int { case square, saw }
+  
   var speed = 1.0
   var series = 1
+  var wave = Wave.square
   
   private var angle = 0.0
   private let delta = Double.pi / 180
@@ -16,6 +19,25 @@ class SketchView: Canvas {
   
   private var graphPoints: [CGFloat] = []
   
+  private func series(_ i: Int) -> (rad: Double, x: Double, y: Double) {
+    switch wave {
+    case .square:
+      let n = Double(i * 2 + 1)
+      let rad = r * (4 / (n * Double.pi))
+      let x = rad * cos(n * angle)
+      let y = rad * sin(n * angle)
+      
+      return (rad: rad, x: x, y: y)
+    case .saw:
+      let n = Double(i + 1)
+      let rad = r * (2 / (n * Double.pi))
+      let x = rad * cos(n * angle)
+      let y = rad * sin(n * angle)
+      
+      return (rad: rad, x: x, y: y)
+    }
+  }
+  
   override func draw() {
     background(CGColor(gray: 0.18, alpha: 1.0))
     
@@ -23,12 +45,9 @@ class SketchView: Canvas {
     
     var pen = CGPoint.zero
     
-    for i in 0..<series {
+    for n in 0..<series {
       // series
-      let n = Double(i * 2 + 1)
-      let rad = r * (4 / (n * Double.pi))
-      let x = rad * cos(n * angle)
-      let y = rad * sin(n * angle)
+      let (rad, x, y) = series(n)
       
       // circle
       fill(.clear)
