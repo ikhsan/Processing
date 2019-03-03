@@ -8,6 +8,11 @@ public struct Complex {
     self.real = real
     self.imag = imag
   }
+  
+  init(_ point: CGPoint) {
+    self.real = Double(point.x)
+    self.imag = Double(point.y)
+  }
 }
 
 public func +(left: Complex, right: Complex) -> Complex {

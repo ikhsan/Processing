@@ -13,8 +13,11 @@ class ViewController: NSViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    
+    sketch.delegate = self
+    didUpdate(fouriersCount: sketch.fouriers.count)
     update()
-    seriesSlider.maxValue = Double(sketch.fouriers.count)
   }
   
   func update() {
@@ -30,5 +33,11 @@ class ViewController: NSViewController {
     }
   }
   
+}
+
+extension ViewController: SketchViewDelegate {
+  func didUpdate(fouriersCount: Int) {
+    seriesSlider.maxValue = Double(fouriersCount)
+  }
 }
 

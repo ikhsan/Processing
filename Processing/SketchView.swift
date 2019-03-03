@@ -4,21 +4,39 @@ public func +(left: CGPoint, right: CGPoint) -> CGPoint {
   return CGPoint(x: left.x + right.x, y: left.y + right.y)
 }
 
+public func -(left: CGPoint, right: CGPoint) -> CGPoint {
+  return CGPoint(x: left.x - right.x, y: left.y - right.y)
+}
+
+protocol SketchViewDelegate: class {
+  func didUpdate(fouriersCount: Int)
+}
+
 class SketchView: Canvas {
   
-  enum Wave: Int { case square, saw }
+  enum State { case draw, render }
+  var state = State.render
   
-  var series = 3
+  var series = 5
+  let offset = CGPoint(x: 300, y: 150)
+  
+  weak var delegate: SketchViewDelegate? = nil
   
   private var angle = 0.0
-  private lazy var delta = Double.pi * 2 / Double(fouriers.count)
+  private var delta: Double {
+    return Double.pi * 2 / Double(fouriers.count)
+  }
   
   private var graphPoints: [CGPoint] = []
   
-  var fouriers: [Epicycle] = []
+  var fouriers: [Epicycle] = [] {
+    didSet {
+      delegate?.didUpdate(fouriersCount: fouriers.count)
+    }
+  }
   
   override func setup() {
-    let sampleInterval = 5
+    let sampleInterval = 10
     let paths = loadPath(from: "sk")
       .enumerated()
       .filter { $0.offset % sampleInterval == 0 }
@@ -30,8 +48,23 @@ class SketchView: Canvas {
   
   override func draw() {
     background(CGColor(gray: 0.18, alpha: 1.0))
-    translate(by: CGPoint(x: 300, y: 150))
+    translate(by: offset)
     
+    switch state {
+    case .draw:
+      renderDrawing()
+    case .render:
+      renderFourier()
+    }
+  }
+  
+  private func renderDrawing() {
+    lineWidth(1.0)
+    stroke(.white)
+    drawPath(drawingPaths)
+  }
+  
+  private func renderFourier() {
     var pen = CGPoint.zero
     
     for cycle in fouriers.prefix(upTo: series) {
@@ -53,13 +86,14 @@ class SketchView: Canvas {
       
       // moving line
       lineWidth(1.0)
-      stroke(.white)
+      stroke(CGColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0))
       line(from: pen, to: lastPen)
       
       pen = lastPen
     }
     
-    // draw waves
+    // draw graphs
+    stroke(.white)
     graphPoints.append(pen)
     drawPath(graphPoints)
     
@@ -69,6 +103,34 @@ class SketchView: Canvas {
     
     // move
     angle += delta
+  }
+  
+  var drawingPaths: [CGPoint] = []
+  
+  override func mouseDown(with event: NSEvent) {
+    state = .draw
+    
+    graphPoints = []
+    drawingPaths = []
+    angle = 0.0
+    series = 3
+  }
+  
+  override func mouseDragged(with event: NSEvent) {
+    let point = convert(event.locationInWindow, from: nil) - offset
+    drawingPaths.append(point)
+  }
+  
+  override func mouseUp(with event: NSEvent) {
+    let complexPaths = drawingPaths
+      .map { Complex($0) * Double.pi }
+
+    fouriers = dft(complexPaths)
+      .sorted(by: { $0.radius > $1.radius })
+    
+    state = .render
+    
+    series = fouriers.count
   }
   
 }
