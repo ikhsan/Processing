@@ -24,7 +24,7 @@ class Canvas: NSView {
       self.frameCount += 1
     }
     
-    timer  = Timer(timeInterval: interval, repeats: true, block: drawBlock)
+    timer = Timer(timeInterval: interval, repeats: true, block: drawBlock)
     RunLoop.main.add(timer!, forMode: .common)
   }
   
