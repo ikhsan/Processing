@@ -12,26 +12,25 @@ class Canvas: NSView {
     setupView()
   }
 
-  var displayLink: CVDisplayLink?
+  private var timer: Timer? = nil
+  var frameRate = 120 // fps
+  var frameCount = 0
   
-  private func setupView() {
-    setup()
+  private func setupTimer() {
+    let interval = 1.0 / Double(frameRate)
     
-    // Source: https://github.com/alexito4/p5-in-Swift/blob/master/p5.playground/Sources/Sketch.swift
-    let callback: CVDisplayLinkOutputCallback = {
-      (displayLink, inNow, inOutputTime, flagsIn, flagsOut, context) -> CVReturn in
-      
-      DispatchQueue.main.sync {
-        let view = unsafeBitCast(context, to: Canvas.self)
-        view.setNeedsDisplay(view.bounds)
-        view.displayIfNeeded()
-      }
-      return kCVReturnSuccess
+    let drawBlock: (Timer) -> Void = { [unowned self] _ in
+      self.setNeedsDisplay(self.bounds)
+      self.frameCount += 1
     }
     
-    CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
-    CVDisplayLinkSetOutputCallback(displayLink!, callback, UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()))
-    CVDisplayLinkStart(displayLink!)
+    timer  = Timer(timeInterval: interval, repeats: true, block: drawBlock)
+    RunLoop.main.add(timer!, forMode: .common)
+  }
+  
+  private func setupView() {
+    setup() 
+    setupTimer()
   }
   
   override var isFlipped: Bool {
@@ -44,8 +43,6 @@ class Canvas: NSView {
   
   override func draw(_ dirtyRect: NSRect) {
     super.draw(dirtyRect)
-    
-    setup()
     draw()
   }
   
@@ -89,7 +86,7 @@ class Canvas: NSView {
     ctx.strokePath()
   }
   
-  func drawPath(_ points: [CGPoint]) {
+  func drawPath(_ points: [CGPoint], closing: Bool = false) {
     guard points.count > 1 else { return }
     
     let path = NSBezierPath()
@@ -97,7 +94,10 @@ class Canvas: NSView {
     for point in points.suffix(from: 1) {
       path.line(to: point)
     }
-//    path.close()
+    
+    if closing {
+      path.close()
+    }
     
     path.stroke()
   }
